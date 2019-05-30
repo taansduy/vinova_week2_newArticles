@@ -26,6 +26,16 @@ import com.example.asus.week2.Utils.EndlessScrollListener
 import com.example.asus.week2.Utils.onSaveFilterListener
 import kotlinx.android.synthetic.main.abc_tooltip.*
 import java.util.*
+import android.net.NetworkInfo
+import android.net.ConnectivityManager
+import com.example.asus.week2.Utils.NetworkChangeReceiver
+import android.content.IntentFilter
+
+
+
+
+
+
 
 
 class MainActivity : AppCompatActivity(), ISearchArticles.View {
@@ -37,6 +47,7 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
     private var mDate:String?=""
     private var mSort:String?=""
     private var mNewDesk:String?=""
+    private var networkChangeReceiver: NetworkChangeReceiver? = null
     init{
         presenter=SearchArticlePresenter(this);
     }
@@ -78,8 +89,8 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
         if(myadapter?.itemCount!!>=20)
         {
             dialog?.dismiss()
-            pullRefresh.isRefreshing=false
         }
+        pullRefresh.isRefreshing=false
     }
 
     override fun onFailure(error:String) {
@@ -105,6 +116,15 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val intentFilter = IntentFilter()
+        // Add network connectivity change action.
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE")
+        // Set broadcast receiver priority.
+        intentFilter.priority = 100
+        // Create a network change broadcast receiver.
+        networkChangeReceiver = NetworkChangeReceiver()
+        // Register the broadcast receiver with the intent filter object.
+        registerReceiver(networkChangeReceiver, intentFilter)
         myadapter = Article_Adapter(this)
         mLayoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         dialog=ProgressDialog(this@MainActivity, R.style.CustomProgressDialog)
@@ -210,6 +230,12 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if(this.networkChangeReceiver!=null) {
+            unregisterReceiver(this.networkChangeReceiver);
+        }
+    }
     fun hideKeyboard(activity: Activity) {
         val imm = activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         //Find the currently focused view, so we can grab the correct window token from it.
