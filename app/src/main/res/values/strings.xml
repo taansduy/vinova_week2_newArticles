@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Week2</string>
+    <string-array name="sort_order">
+        <item>oldest</item>
+        <item>newest</item>
+    </string-array>
+</resources>
