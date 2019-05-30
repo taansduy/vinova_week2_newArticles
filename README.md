@@ -1,7 +1,7 @@
 # vinova_week2_newArticles
 newArticles is a news article searching application powered by the New York Times Search API.
 ## User Stories
-* [x] User can enter a search query in  [ActionBar SearchView] replacing for edittext then app will display a grid of news articles using the thumbnail and headline from the New York Times Search API.
+* [x] User can enter a search query in  **ActionBar SearchView** replacing for edittext then app will display a grid of news articles using the thumbnail and headline from the New York Times Search API.
 * [x] User can click on "filter" icon which allows selection of advanced search options to filter articles through a **modal overlay**
 * [x] User can configure advanced search filters such as:
 	* [x] Begin Date (using a [date picker](https://guides.codepath.com/android/Using-DialogFragment#displaying-date-or-time-picker-dialogs))
