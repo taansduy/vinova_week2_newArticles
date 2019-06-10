@@ -30,18 +30,19 @@ import android.net.NetworkInfo
 import android.net.ConnectivityManager
 import com.example.asus.week2.Utils.NetworkChangeReceiver
 import android.content.IntentFilter
-
-
-
-
-
-
+import android.view.WindowManager
+import android.graphics.Bitmap
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+import android.app.Activity
+import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 
 
 class MainActivity : AppCompatActivity(), ISearchArticles.View {
     private var presenter: ISearchArticles.Presenter
     private var  myadapter: Article_Adapter?=null
-    private var mLayoutManager: StaggeredGridLayoutManager? = null
+    private var mLayoutManager: LinearLayoutManager? = null
     private var dialog :ProgressDialog?=null
     private var mquery:String?=""
     private var mDate:String?=""
@@ -69,8 +70,6 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
            {
                myadapter?.removeLastItem()
            }
-            //myadapter?.updateSource(ArrayList<Docs>())
-            dialog?.dismiss()
             pullRefresh.isRefreshing=false
             return
         }
@@ -85,11 +84,8 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
             myadapter?.addAll(articles)
             myadapter?.removeLastItem()
         }
+        dialog?.dismiss()
 
-        if(myadapter?.itemCount!!>=20)
-        {
-            dialog?.dismiss()
-        }
         pullRefresh.isRefreshing=false
     }
 
@@ -117,24 +113,22 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val intentFilter = IntentFilter()
-        // Add network connectivity change action.
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE")
-        // Set broadcast receiver priority.
         intentFilter.priority = 100
-        // Create a network change broadcast receiver.
         networkChangeReceiver = NetworkChangeReceiver()
-        // Register the broadcast receiver with the intent filter object.
         registerReceiver(networkChangeReceiver, intentFilter)
+
         myadapter = Article_Adapter(this)
-        mLayoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-        dialog=ProgressDialog(this@MainActivity, R.style.CustomProgressDialog)
-        dialog?.setMessage("Loading...")
-        dialog?.show()
+        mLayoutManager = LinearLayoutManager(this)
         presenter.getArticles("newest",0)
+        for(i in 1..10)
+        {
+            myadapter?.add(null)
+        };
         rcv.adapter=this.myadapter
         rcv.layoutManager = mLayoutManager
         //This will for default android divider
-        rcv.addItemDecoration(GridItemDecoration(20, 1))
+        rcv.addItemDecoration(GridItemDecoration(5, 1))
         var itemClickListener=object: onItemClickListener {
             override fun onItemClick(item: Docs) {
                 val url = item.web_url
@@ -163,7 +157,10 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
         myadapter?.setItemClickListener(itemClickListener)
         var scrollListener = object : EndlessScrollListener(mLayoutManager!!,0) {
             override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
-                myadapter?.add(null);
+                for(i in 1..10)
+                {
+                    myadapter?.add(null)
+                };
                 if(page<=100) presenter.getArticles(mquery!!,mDate,mSort,mNewDesk,page)
 
             }
@@ -194,9 +191,10 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
                 myadapter?.updateSource(ArrayList<Docs>())
                 presenter.getArticles(query!!,mDate,mSort,mNewDesk,0)
                 hideKeyboard(this@MainActivity)
-                dialog=ProgressDialog(this@MainActivity, R.style.CustomProgressDialog)
-                dialog?.setMessage("Loading...")
-                dialog?.show()
+                for(i in 1..10)
+                {
+                    myadapter?.add(null)
+                };
                 return true
             }
             override fun onQueryTextChange(query: String): Boolean {
@@ -222,7 +220,7 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
                         dialog.dismiss()
                     }
                 })
-                dialog.show(fm,"Filter Options")
+                dialog.show(fm,"Filter Option")
                 return true
             }
 
@@ -246,4 +244,6 @@ class MainActivity : AppCompatActivity(), ISearchArticles.View {
         }
         imm.hideSoftInputFromWindow(view!!.windowToken, 0)
     }
+
+
 }

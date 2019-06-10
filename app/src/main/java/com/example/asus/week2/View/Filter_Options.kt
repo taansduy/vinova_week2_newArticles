@@ -1,6 +1,8 @@
 package com.example.asus.week2.View
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
@@ -16,6 +18,16 @@ import java.util.*
 import android.widget.DatePicker
 import android.app.DatePickerDialog
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Rect
+import android.view.WindowManager
+import fr.tvbarthel.lib.blurdialogfragment.BlurDialogEngine
+import android.content.DialogInterface
+
+
+
+
+
 
 
 
@@ -24,6 +36,7 @@ class Filter_Options(private val mcontext: Context,private val mdate: String?,pr
 
     var myCalendar = Calendar.getInstance()
     var listener: onSaveFilterListener?=null
+    private var mBlurEngine: BlurDialogEngine? = null
     var date: DatePickerDialog.OnDateSetListener =
         DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
             myCalendar.set(Calendar.YEAR, year)
@@ -75,14 +88,14 @@ class Filter_Options(private val mcontext: Context,private val mdate: String?,pr
 
         editText.setOnClickListener{
             DatePickerDialog(mcontext
-                , date, myCalendar
+                , AlertDialog.THEME_HOLO_LIGHT, date, myCalendar
                     .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                 myCalendar.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
         btnSave.setOnClickListener{
             var date=editText.text.toString().replace("/","")
-            var sort=spinner.selectedItem.toString()
+            var sort=spinner.selectedItem.toString().toLowerCase()
             var newdesk=""
             if(checkBox.isChecked)
             {
@@ -98,12 +111,39 @@ class Filter_Options(private val mcontext: Context,private val mdate: String?,pr
             }
             listener?.onItemClick(date,sort,newdesk)
         }
+        mBlurEngine =  BlurDialogEngine(activity);
+        mBlurEngine!!.setBlurRadius(4);
+
+
     }
 
+    override fun onResume() {
+        super.onResume()
+        mBlurEngine!!.onResume(retainInstance);
+    }
+
+
+    override fun onDismiss(dialog: DialogInterface?) {
+        super.onDismiss(dialog)
+        mBlurEngine!!.onDismiss()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mBlurEngine!!.onDetach()
+    }
+
+    override fun onDestroyView() {
+        if (dialog != null) {
+            dialog.setDismissMessage(null)
+        }
+        super.onDestroyView()
+    }
     private fun updateLabel() {
         val myFormat = "yyyy/MM/dd" //In which you need put here
         val sdf = SimpleDateFormat(myFormat, Locale.US)
 
         editText.setText(sdf.format(myCalendar.getTime()))
     }
+
 }

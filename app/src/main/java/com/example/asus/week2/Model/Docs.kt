@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 
-public class Docs : Serializable{
+class Docs : Serializable{
+
 	@SerializedName("web_url")
 	@Expose 
 	val web_url : String?=null
@@ -68,5 +69,6 @@ public class Docs : Serializable{
 	@SerializedName("uri") 
 	@Expose 
 	val uri : String?=null
+
 }
 
